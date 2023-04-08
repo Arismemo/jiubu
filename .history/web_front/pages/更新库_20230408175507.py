@@ -14,15 +14,10 @@ pp_shitu_path = os.path.join(project_dir, 'pp_backend') # pp_shitu后端的目�
 pp_shitu_gallary_path = os.path.join(project_dir, 'pp_backend/gallery/') # pp_shitu图片的目录
 upload_image_path = os.path.join(project_dir, 'assets/images/to_recognize')  # 待识别的图片的目录
 add_lib_image_path = os.path.join(project_dir, 'assets/images/to_add_to_lib')  # 待识别的图片的目录
-# print(project_dir)
-# print(pp_shitu_path)
-# print(pp_shitu_gallary_path)
-# print(upload_image_path)
-
-def replace_file(from_file_path, to_file_path):
-    os.remove(to_file_path)
-    shutil.move(from_file_path, to_file_path)
-    st.write('移动成功')
+print(project_dir)
+print(pp_shitu_path)
+print(pp_shitu_gallary_path)
+print(upload_image_path)
 
 
 def pp_add_inex():
@@ -32,15 +27,8 @@ def pp_add_inex():
     from_dir = add_lib_image_path
     to_dir = os.path.join(pp_shitu_gallary_path, 'index_images')
     for file_name in file_name_list:
-        from_file_path = os.path.join(from_dir, file_name)
-        to_file_path = os.path.join(to_dir, file_name)
-        try:
-            shutil.move(from_file_path, to_dir)
-        except:
-            st.write('{}文件已存在库中, 将被覆盖'.format(file_name))
-            replace_file(from_file_path, to_file_path)
-                
-
+        file_path = os.path.join(from_dir, file_name)
+        shutil.move(from_dir, to_dir)
 
     # 重新构建文件的对应表
     index_name_list = os.listdir(to_dir)
@@ -53,7 +41,7 @@ def pp_add_inex():
     IndexProcess_index_dir = os.path.join(pp_shitu_gallary_path, 'index')
     IndexProcess_data_file = os.path.join(pp_shitu_gallary_path, 'file_map.txt')
     
-    command = "paddleclas --build_gallery=True --model_name='PP-ShiTuV2' -o IndexProcess.image_root={} -o IndexProcess.index_dir={} -o IndexProcess.data_file={}".format(IndexProcess_image_root, IndexProcess_index_dir, IndexProcess_data_file)
+    command = "paddleclas --build_gallery=True --model_name='PP-ShiTuV2' -o IndexProcess.image_root={}/* -o IndexProcess.index_dir={} -o IndexProcess.data_file={}".format(IndexProcess_image_root, IndexProcess_index_dir, IndexProcess_data_file)
     print(command)
     p = subprocess.Popen(command, stdout=subprocess.PIPE, shell=True, cwd=pp_shitu_path)
     exec_output, unused_err = p.communicate()
@@ -61,6 +49,8 @@ def pp_add_inex():
 
 def save_images_for_index(image_path):
     upload_image.save(image_path)
+
+
 
 if __name__ == "__main__":
 

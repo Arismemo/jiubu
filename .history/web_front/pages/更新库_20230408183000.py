@@ -37,9 +37,13 @@ def pp_add_inex():
         try:
             shutil.move(from_file_path, to_dir)
         except:
-            st.write('{}文件已存在库中, 将被覆盖'.format(file_name))
-            replace_file(from_file_path, to_file_path)
-                
+            st.write('{}文件已存在库中, 是否覆盖或者取消操作'.format(file_name))
+            
+            if st.button('覆盖', on_click=replace_file, args=(from_file_path, to_file_path,)):
+                st.write('已保存')
+            if st.button('取消'):
+                st.write('已取消操作')
+            continue
 
 
     # 重新构建文件的对应表

@@ -39,7 +39,7 @@ def shitu(image_path):
     result_write = col2.title("识别结果：" + '......')
     if not find_group:
         result_write.write("识别结果：" + '对不起，识别失败，请更换要识别的图片！')
-        #  result_write.write(exec_output)
+        result_write.write(exec_output)
         return
 
     img_recognition_dic = eval(find_group[0])[0]

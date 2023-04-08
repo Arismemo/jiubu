@@ -1,0 +1,16 @@
+pandas==1.5.3
+Pillow==9.5.0
+requests==2.28.2
+streamlit==1.20.0
+prettytable
+ujson
+opencv-python==4.6.0.66
+pillow
+tqdm
+PyYAML>=5.1
+visualdl>=2.2.0
+scipy>=1.0.0
+scikit-learn>=0.21.0
+gast==0.3.3
+faiss-cpu
+easydict

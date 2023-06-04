@@ -7,73 +7,59 @@ import time
 import sys
 import subprocess
 import shutil
+import sys 
+
+sys.path.append("..") 
+from shitu import ShiTu
+
+import logging
+
+logging.basicConfig(
+    format = '%(asctime)s - %(levelname)s - %(message)s - %(funcName)s',
+    level=logging.DEBUG
+)
 
 project_dir = sys.argv[1]
+gallary_path = '/home/liukun/work/jiubu/pp_backend/resource/jiubu_dataset/gallery/'
+index_path = '/home/liukun/work/jiubu/pp_backend/resource/jiubu_dataset/index/'
+shitu_operator = ShiTu(gallary_path, project_dir, index_path)
+
+
 # project_dir = os.getenv("CURRENT_DIR")
 pp_shitu_path = os.path.join(project_dir, 'pp_backend') # pp_shitu后端的目录
-pp_shitu_gallary_path = os.path.join(project_dir, 'pp_backend/gallery/') # pp_shitu图片的目录
 upload_image_path = os.path.join(project_dir, 'assets/images/to_recognize')  # 待识别的图片的目录
 add_lib_image_path = os.path.join(project_dir, 'assets/images/to_add_to_lib')  # 待识别的图片的目录
-# print(project_dir)
-# print(pp_shitu_path)
-# print(pp_shitu_gallary_path)
-# print(upload_image_path)
 
-def replace_file(from_file_path, to_file_path):
-    os.remove(to_file_path)
-    shutil.move(from_file_path, to_file_path)
-    st.write('移动成功')
 
 
 def pp_add_inex():
-
-    # 将新增文件从缓存区移动到index区
-    file_name_list = os.listdir(add_lib_image_path)
-    from_dir = add_lib_image_path
-    to_dir = os.path.join(pp_shitu_gallary_path, 'index_images')
-    for file_name in file_name_list:
-        from_file_path = os.path.join(from_dir, file_name)
-        to_file_path = os.path.join(to_dir, file_name)
-        try:
-            shutil.move(from_file_path, to_dir)
-        except:
-            st.write('{}文件已存在库中, 将被覆盖'.format(file_name))
-            replace_file(from_file_path, to_file_path)
-                
+    shitu_operator.update_index_lib()
 
 
-    # 重新构建文件的对应表
-    index_name_list = os.listdir(to_dir)
-    with open(os.path.join(pp_shitu_gallary_path, 'file_map.txt'), 'w') as f:
-        for file_name in index_name_list:
-            position = file_name.split('.')[0]
-            f.write("{}\t{}\n".format(file_name, position))
-
-    IndexProcess_image_root = to_dir
-    IndexProcess_index_dir = os.path.join(pp_shitu_gallary_path, 'index')
-    IndexProcess_data_file = os.path.join(pp_shitu_gallary_path, 'file_map.txt')
-    
-    command = "paddleclas --build_gallery=True --model_name='PP-ShiTuV2' -o IndexProcess.image_root={} -o IndexProcess.index_dir={} -o IndexProcess.data_file={}".format(IndexProcess_image_root, IndexProcess_index_dir, IndexProcess_data_file)
-    print(command)
-    p = subprocess.Popen(command, stdout=subprocess.PIPE, shell=True, cwd=pp_shitu_path)
-    exec_output, unused_err = p.communicate()
-    # st.write(exec_output)
-
-def save_images_for_index(image_path):
-    upload_image.save(image_path)
+def check_img_existed(product_code):
+    return
 
 if __name__ == "__main__":
 
-    product_code = st.text_input('请输入商品位置或编号', 'A0101')
-    file = st.file_uploader("请上传商品编号对应的图片", type=["jpg", "png", "jpeg"])
+    logging.debug('logger test')
 
-    if file is not None:
+    product_code = st.text_input('货位', '')
+    file = st.file_uploader("上传图片", type=["jpg", "png", "jpeg"])
+
+    existed, info = check_img_existed(file)
+
+    if file and not existed:
         upload_image = Image.open(file)
-        image_path = os.path.join(add_lib_image_path, product_code + '.jpg')
-        st.image(upload_image)
+        if product_code:
+            gallary_image_path = os.path.join(gallary_path, 'images', product_code + '.jpg')
+        
+            logging.debug('gallary_image_path: ', gallary_image_path)
+            logging.debug('save image to gallary')
 
-        if st.button('保存图片待入库', on_click=save_images_for_index, args=(image_path,)):
-            st.write('已保存')
+            upload_image.save(gallary_image_path)
+            st.image(upload_image)
+            if st.button('添加', on_click=pp_add_inex):
+                st.write('已添加')
+        else:
+            st.write('请输入货位')
 
-        if st.button('添加所有图片到库', on_click=pp_add_inex):
-            st.write('已添加')

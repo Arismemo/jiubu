@@ -5,60 +5,82 @@ import re
 import os
 import time
 import sys
+import io
+from PIL import Image, ImageDraw
+from shitu import ShiTu
 
 
 project_dir = sys.argv[1]
+gallary_path = '/home/liukun/work/jiubu/pp_backend/resource/jiubu_dataset/gallery/'
+index_path = '/home/liukun/work/jiubu/pp_backend/resource/jiubu_dataset/index/'
+shitu_operator = ShiTu(gallary_path, project_dir, index_path)
+
+
 pp_shitu_path = os.path.join(project_dir, './pp_backend') # pp_shitu后端的目录
-pp_shitu_gallary_path = os.path.join(project_dir, './pp_backend/gallery/') # pp_shitu图片的目录
 upload_image_path = os.path.join(project_dir, 'assets/images/to_recognize')  # 待识别的图片的目录
-add_lib_image_path = os.path.join(project_dir, 'assets/images/to_add_to_lib')  # 待识别的图片的目录
-
-# print(project_dir)
-# print(pp_shitu_path)
-# print(pp_shitu_gallary_path)
-# print(upload_image_path)
-
-# @st.cache_data
-def run_pp_shitu(image_path):
-    import subprocess
-    # exit_status, output = commands.getstatusoutput("paddleclas --model_name=PP-ShiTuV2 --predict_type=shitu -o Global.infer_imgs='https://image.buy.ccb.com/merchant/201909/1189826382/1594017506908.jpg' -o IndexProcess.index_dir='./drink_dataset_v2.0/index''")
-    IndexProcess_index_dir = os.path.join(pp_shitu_gallary_path, 'index')
-    command = "paddleclas --model_name=PP-ShiTuV2 --predict_type=shitu -o Global.infer_imgs='{}' -o IndexProcess.index_dir={}".format(image_path, IndexProcess_index_dir)
-    print(command)
-
-    # command = "paddleclas --model_name=PP-ShiTuV2 --predict_type=shitu -o Global.data_file=image -o IndexProcess.index_dir='./drink_dataset_v2.0/index'"
-    p = subprocess.Popen(command, stdout=subprocess.PIPE, shell=True, cwd=pp_shitu_path)
-    exec_output, unused_err = p.communicate()
-    return exec_output
 
 
-def shitu(image_path):
-    # image = base64.b64encode(target)
-    exec_output = run_pp_shitu(image_path)
-    find_group = re.findall('\[\{.+\]',exec_output.decode())
-    result_write = col2.title("识别结果：" + '......')
-    if not find_group:
-        result_write.write("识别结果：" + '对不起，识别失败，请更换要识别的图片！')
-        #  result_write.write(exec_output)
-        return
+def handle_uploaded_file(file_list):
+    # 创建一个空列表，用于保存所有上传的图片
+    images = []
+    # 遍历所有上传的文件
+    for new_file in file_list:
+        # 读取文件内容并将其转换为图像格式
+        file_contents = new_file.read()
+        image = Image.open(io.BytesIO(file_contents))
+        # 将图像添加到列表中
+        images.append(image)
+    
+    # 按行排列所有图像
+    num_images = len(images)
+    row_width = 500
+    num_cols = int(row_width / 100)
+    num_rows = int(num_images / num_cols) + (1 if num_images % num_cols > 0 else 0)
+    for row in range(num_rows):
+        # 创建一个新的行
+        col_widths = [100] * min(num_images - row * num_cols, num_cols)
+        cols = st.columns(col_widths)
+        # 在行中显示图像
+        for i, col in enumerate(cols):
+            if i + row * num_cols < num_images:
+                ig = images[i + row * num_cols]
+                
+                image_path = os.path.join(upload_image_path, time.strftime('%Y%m%d_%H%M%S', time.localtime(time.time())) + '.jpg')
+                ig.save(image_path)
 
-    img_recognition_dic = eval(find_group[0])[0]
-    # st.write(type(img_recognition_dic[0]))
-    # st.write('debug', img_recognition_dic)
-    print(img_recognition_dic)
-    result_write.title("识别结果：" + img_recognition_dic['rec_docs'])
+                col.image(ig, use_column_width=True)
+
+                info_list = shitu_operator.run(image_path)
+                print(info_list)
+                if info_list:
+                    for info in info_list:
+                        bbox_point_list = info['bbox']
+                        x1, y1, x2, y2 = bbox_point_list
+                        draw = ImageDraw.Draw(ig)
+                        draw.rectangle(((x1, y1), (x2, y2)), outline="red", width=50)
+                        col.write(info['rec_docs'])
+                else:
+                    col.write('未找到')
+                
+                
 
 if __name__ == "__main__":
 
-    st.set_page_config(page_title="九步", page_icon="🍀", layout="wide")
+    # 设置页面属性
+    st.set_page_config(
+        page_title="九步", 
+        page_icon="🍀", 
+        layout="wide"
+    )
 
-    col1, col2 = st.columns(2)
-    file = col1.file_uploader("请上传要识别的图片", type=["jpg", "png", "jpeg"])
+    # 文件上传组件
+    file_list = st.file_uploader(
+        label="😘",
+        type=["jpg", "png", "jpeg"],
+        label_visibility="hidden",
+        accept_multiple_files=True,
+        help='test help')
 
-    if file is not None:
-        upload_image = Image.open(file)
-        image_path = os.path.join(upload_image_path, time.strftime('%Y%m%d_%H%M%S',time.localtime(time.time())) + '.jpg')
-        upload_image.save(image_path)
-        col1.write("待识别的图片")
-        col1.image(upload_image)
-        shitu(image_path)
+    # 处理上传的文件
+    if file_list is not None:
+        handle_uploaded_file(file_list)

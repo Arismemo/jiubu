@@ -16,3 +16,8 @@ faiss-cpu
 easydict
 paddleclas
 paddlepaddle
+wget
+sqlalchemy
+pymysql
+streamlit-modal==0.1.0
+streamlit-aggrid

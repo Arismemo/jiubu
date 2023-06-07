@@ -3,3 +3,4 @@
 *.jpeg
 *.tar
 *.tar.gz
+.env

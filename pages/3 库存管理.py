@@ -13,6 +13,10 @@ from st_aggrid import AgGrid,ColumnsAutoSizeMode
 # sql = 'select * from 商品信息表;'
 # df = pd.read_sql(sql, engine)
 
+
+from st_aggrid import AgGrid, DataReturnMode, GridUpdateMode, GridOptionsBuilder
+
+
 st.set_page_config(layout='wide')
 connection = pymysql.connect(
     host='localhost',
@@ -26,19 +30,24 @@ connection = pymysql.connect(
 sql = 'SELECT * FROM 商品信息表'
 df = pd.read_sql(sql=sql, con=connection, index_col='id', columns=['id'])
 
-connection.close()
+df.rename(columns = {'description' : '描述',
+                     'goods_position' : '货架位置',
+                     'model_position' : '模具位置',
+                     'color_list' : '颜色序列',
+                     'classify' : '分类',
+                     'count' : '库存数量',
+                     'create_time' : '创建时间',
+                     'last_update_time' : '最后修改时间',
+                     }, inplace = True)
+
+
 with st.container():
-    AgGrid(
-        df,
-        # fit_columns_on_grid_load=True,
-        editable=True,
-        # height=500,
-        theme='streamlit',
-        columns_auto_size_mode=ColumnsAutoSizeMode.FIT_CONTENTS,
-        enable_enterprise_modules=True
-        )
-# st.dataframe(df)
+    st.experimental_data_editor(df,
+                                num_rows='dynamic',
+                                key="data_editor",
+                                # hide_index=True,
+                                use_container_width=True)
 
-
+connection.close()
 if st.button('提交修改'):
-    df.to_sql(name='商品信息表', con=connection,if_exists='replace')
+   df.to_sql(name='商品信息表', con=connection,if_exists='replace')

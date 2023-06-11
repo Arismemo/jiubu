@@ -25,7 +25,6 @@ Base = orm.declarative_base()
 
 placeholder =  st.empty()
 
-
 def compare_images(new_image, existed_image):
     confirm_modal = Modal(title="图片比较", key="confirm_images", max_width=300)
     with confirm_modal.container():

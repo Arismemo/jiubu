@@ -21,3 +21,4 @@ sqlalchemy
 pymysql
 streamlit-modal==0.1.0
 streamlit-aggrid
+sqlacodegen

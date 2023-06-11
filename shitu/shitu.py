@@ -131,12 +131,12 @@ class ShiTu:
 
     # 添加record之前,需要先search,保证数据库中没有重复object
     def add_record(self, tag: str, img_path: str) -> bool:
-        try:
-            info = self.get_tag_by_image(img_path)
-            if info['find_result']:
-                raise e
-        except Exception as e:
-            raise e
+        # try:
+        #     info = self.get_tag_by_image(img_path)
+        #     if info['find_result']:
+        #         raise e
+        # except Exception as e:
+        #     raise e
 
         # 将图片移动到gallary/images中, 且在map中添加记录
         image_name = os.path.basename(img_path)

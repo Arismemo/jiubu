@@ -17,7 +17,7 @@ shitu_operator = ShiTu(gallary_path, index_path)
 
 def add_record(tag, upload_file):
     upload_image = Image.open(upload_file)
-    gallary_image_path = os.path.join(gallary_path, 'images', tag + '.jpg')
+    # gallary_image_path = os.path.join(gallary_path, 'images', tag + '.jpg')
 
     image_path = os.path.join(upload_image_path, upload_file.name)
 

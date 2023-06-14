@@ -17,22 +17,22 @@ class MyBase:
 
         # 定义商品模型类
         class Product(self.Base):
-            __table__ = Table("商品信息表", metadata, autoload=True)
             __tablename__ = '商品信息表'
+            id = Column(String(256), primary_key=True, comment="商品ID")
+            name = Column(String(256), primary_key=True, comment="名称")
+            description = Column(String(256), primary_key=True, comment="描述")
+            goods_position = Column(String(256), nullable=False, comment="货架位置")
+            model_position = Column(String(256), comment="模具位置")
+            color_list = Column(String(256), nullable=False, comment="颜色序列")
+            classify = Column(String(256), nullable=False, comment="分类")
+            count =  Column(Integer, nullable=False, comment="库存")
+            photo_path = Column(Integer, nullable=False, comment="图片路径")
 
-            # id = Column(String(256), primary_key=True, comment="商品ID")
-            # description = Column(String(256), primary_key=True, comment="描述")
-            # goods_position = Column(String(256), nullable=False, comment="货架位置")
-            # model_position = Column(String(256), comment="模具位置")
-            # color_list = Column(String(256), nullable=False, comment="颜色序列")
-            # classify = Column(String(256), nullable=False, comment="分类")
-            # count =  Column(Integer, nullable=False, comment="库存")
+            create_time = Column(
+                DateTime, default=datetime.datetime.now, comment="创建时间")
 
-            # create_time = Column(
-            #     DateTime, default=datetime.datetime.now, comment="创建时间")
-
-            # last_update_time = Column(
-            #     DateTime, default=datetime.datetime.now, onupdate=datetime.datetime.now, comment="最后更新时间")
+            last_update_time = Column(
+                DateTime, default=datetime.datetime.now, onupdate=datetime.datetime.now, comment="最后更新时间")
 
             # @validates('color')
             # def validate_color(self, key, color):

@@ -34,6 +34,7 @@ class ShiTu:
             returncode = return_info.wait()
             if returncode:
                 raise subprocess.CalledProcessError(returncode, return_info)
+            print(ret_line_list)
             return ret_line_list
         except Exception as e:
             print(ret_line_list)
@@ -83,6 +84,7 @@ class ShiTu:
         try:
             exec_output = self._run_subprocess_cmd(command)
         except Exception as e:
+            print(e)
             raise e
         
         predict_result_line = ''
@@ -93,7 +95,7 @@ class ShiTu:
         if not predict_result_line:
             ret['find_result'] = False
             return ret
-
+        print(exec_output)
         print('[DEBUG] predict_result_line', predict_result_line)
         find_group = re.findall('\[\{.+\]', predict_result_line)
 
@@ -121,12 +123,13 @@ class ShiTu:
                         find_image_name = file_name
                         break
 
-        ret['image_path'] = os.path.join(
+        ret['photo_path'] = os.path.join(
             self._gallary_path,
             'images',
             find_image_name
         )
         print('[DEBUG] (get_tag_by_image) tag:  ', ret)
+        print('ret: {}', ret)
         return ret
 
     # 添加record之前,需要先search,保证数据库中没有重复object
@@ -147,9 +150,6 @@ class ShiTu:
 
         # 重新构建库
         self._rebuild_library()
-
-
-
 
     
     # todo :添加批量加入索引的方法

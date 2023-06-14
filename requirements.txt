@@ -20,5 +20,10 @@ wget
 sqlalchemy
 pymysql
 streamlit-modal==0.1.0
-streamlit-aggrid
+streamlit-aggrid==0.3.3
 sqlacodegen
+markdown-3.4.3
+streamlit-on-Hover-tabs-1.0.1
+streamlit-image-annotation
+streamlit-custom-notification-box
+streamlit-cropper

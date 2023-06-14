@@ -3,9 +3,13 @@ from sqlalchemy.orm import sessionmaker, declarative_base, validates
 import pandas as pd
 from app.models import MyBase
 
+import sys
+sys.path.append('../utils')
+from utils.shitu_wrapper import *
+
 class ProductHandler(MyBase):
     def __init__(self) -> None:
-        super().__init__("mysql+pymysql://jiubu:Trainlk100@localhost:3306/database_jiubu")
+        super().__init__('mysql+pymysql://jiubu:Trainlk100@localhost:3306/database_jiubu')
 
     # 创建商品记录的函数
     def create_product(self,
@@ -22,6 +26,7 @@ class ProductHandler(MyBase):
             # 检查主键是否存在
             product = session.query(self.product).filter_by(id=id).first()
             if product is not None:
+                print('product id existed')
                 return False # 如果存在就跳过
             try:
                 product = self.product(id=id,
@@ -38,6 +43,10 @@ class ProductHandler(MyBase):
                 session.commit()
             except Exception as e:
                 print(str(e))
+                print('database error')
+                return False
+            
+            if not add_record(id, photo_path):
                 return False
             return True
 
@@ -76,12 +85,12 @@ class ProductHandler(MyBase):
     def get_product_data(self):
         with self.Session() as session:
             results = session.query(self.product).all()
-        df = pd.DataFrame([(p.id, p.name, p.color, p.size, p.photo_path, p.product_ts) for p in results],
-                        columns=['id', 'name', 'color', 'size', 'photo_path', 'product_ts'])
+        df = pd.DataFrame([(p.id, os.path.basename(p.photo_path), p.classify,  p.goods_position, p.name, p.description,  p.model_position, p.color_list,  p.count, p.create_time, ) for p in results],
+                        columns=['ID', '图片', '分类', '库存位置', '名称', '描述',  '模具位置', '颜色序列',  '库存', '创建时间'])
         return df
 
     # 创建商品记录的函数
-    def create_product＿detail(self, id, quantity, price, type, supplier, note=None, detail_ts:pd.Timestamp=None):
+    def create_product_detail(self, id, quantity, price, type, supplier, note=None, detail_ts:pd.Timestamp=None):
         with self.Session() as session:
             if detail_ts is None:
                 t = pd.Timestamp.now()

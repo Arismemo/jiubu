@@ -17,7 +17,7 @@ def get_product_code(uploaded_file):
                     with col1:
                         st.image(uploaded_file, caption='上传图片', width=100)
                     with col2:
-                        lib_image = Image.open(info['image_path'])
+                        lib_image = Image.open(info['photo_path'])
                         st.image(lib_image, caption="库中图片", width=100)
 
                     if st.button('是', key="confirm1"):

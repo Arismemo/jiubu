@@ -37,8 +37,8 @@ def compare_images(new_image, existed_image):
 def try_add_record(tag, upload_file):
     search_result = search_image(upload_file)
     if search_result['find_result']:
-        exist_image_path = search_result['image_path']
-        exist_image = Image.open(exist_image_path)
+        exist_photo_path = search_result['photo_path']
+        exist_image = Image.open(exist_photo_path)
         compare_images(upload_file, exist_image)
     else:
         add_record(tag, upload_file)
@@ -47,7 +47,7 @@ def try_add_record(tag, upload_file):
 def show_product_info(info: dict):
     with st.container():
         st.title('查找结果')
-        lib_pic_path = info['image_path']
+        lib_pic_path = info['photo_path']
         product_code = info['rec_docs']
 
         product = search_product(product_code)
@@ -76,7 +76,15 @@ def search_product_by_code():
             st.warning('未查到编号对应的产品')
         else:
             st.error("产品库中存在编号相同的产品，请联系管理员")
-    
+
+def save_image(uploaded_file):
+    # file_contents = uploaded_file.read()
+    # image = Image.open(io.BytesIO(file_contents))
+    image = Image.open(uploaded_file)
+    # photo_path = os.path.join(upload_photo_path, time.strftime('%Y%m%d_%H%M%S', time.localtime(time.time())) + '.jpg')
+    photo_path = os.path.join(upload_photo_path, uploaded_file.name)
+    image.save(photo_path)
+    return photo_path
 
 def search_product_by_image():
     with st.form("通过图片查找"):
@@ -88,7 +96,8 @@ def search_product_by_image():
     if submitted:
         if uploaded_file:
             with st.spinner('图像分析中'):
-                info = search_image(uploaded_file)
+                upload_photo_path = save_image(uploaded_file)
+                info = search_image(upload_photo_path)
             if info['find_result'] == True:
                 confirm_modal = Modal(title="", key="confirm_modal", max_width=400)
                 with confirm_modal.container():
@@ -97,7 +106,7 @@ def search_product_by_image():
                     with col1:
                         st.image(uploaded_file, caption='上传图片', width=100)
                     with col2:
-                        lib_image = Image.open(info['image_path'])
+                        lib_image = Image.open(info['photo_path'])
                         st.image(lib_image, caption="库中图片", width=100)
 
                         col1, col2 = st.columns(2)

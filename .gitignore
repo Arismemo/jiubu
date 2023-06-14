@@ -4,3 +4,4 @@
 *.tar
 *.tar.gz
 .env
+__pycache__
